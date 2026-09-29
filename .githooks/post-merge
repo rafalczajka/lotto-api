@@ -4,8 +4,10 @@ set -e
 
 root_dir=$(git rev-parse --show-toplevel)
 
-. "$root_dir/.githooks/venv.sh"
-set_venv_python "$root_dir"
-
 dotnet restore "$root_dir"
-"$VENV_PY" -m pip install -r "$root_dir/requirements.txt"
+
+if [ -d "$root_dir/.venv" ]; then
+  . "$root_dir/.githooks/venv.sh"
+  set_venv_python "$root_dir"
+  "$VENV_PY" -m pip install -r "$root_dir/requirements.txt"
+fi
