@@ -1,2 +1,0 @@
-GET https://developers.lotto.pl/api/open/v1/lotteries/draw-results/by-date-per-game?gameType=Lotto&drawDate=2025-01-25&index=1&size=10&sort=drawSystemId&order=ASC
-secret: {{$dotenv LOTTO_API_KEY}}

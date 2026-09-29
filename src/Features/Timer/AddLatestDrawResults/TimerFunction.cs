@@ -6,11 +6,9 @@ internal sealed class TimerFunction(FunctionHandler handler, ILogger<TimerFuncti
 
     [Function(FunctionName), FixedDelayRetry(3, "00:15:00")]
     public async Task Run(
-#if RELEASE
-        [TimerTrigger("%DataSyncSchedule%", UseMonitor = false, RunOnStartup = true)] TimerInfo _,
-#else
+        // Monitoring disabled intentionally to avoid storage writes.
+        // Missed runs are handled by synchronization logic.
         [TimerTrigger("%DataSyncSchedule%", UseMonitor = false)] TimerInfo _,
-#endif
         CancellationToken cancellationToken)
     {
         try

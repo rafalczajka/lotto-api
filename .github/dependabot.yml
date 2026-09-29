@@ -11,7 +11,7 @@ updates:
           - "*"
 
   - package-ecosystem: pip
-    directory: /tools
+    directory: /
     schedule:
       interval: weekly
     groups:
@@ -20,7 +20,7 @@ updates:
           - "*"
 
   - package-ecosystem: github-actions
-    directory: /.github/workflows
+    directory: /
     schedule:
       interval: weekly
     groups:
