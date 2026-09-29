@@ -40,7 +40,7 @@ param location string = resourceGroup().location
 // Resources
 //*************************************
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2026-03-01' = {
   name: 'log-${resourceToken}'
   location: location
   properties: any({
@@ -61,7 +61,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
   name: 'st${resourceTokenWithoutDashes}'
   location: location
   kind: 'StorageV2'
@@ -76,7 +76,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2025-01-01' = {
   }
 }
 
-resource tableServices 'Microsoft.Storage/storageAccounts/tableServices@2025-01-01' = {
+resource tableServices 'Microsoft.Storage/storageAccounts/tableServices@2026-04-01' = {
   name: 'default'
   parent: storageAccount
 
@@ -85,22 +85,22 @@ resource tableServices 'Microsoft.Storage/storageAccounts/tableServices@2025-01-
   }
 }
 
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01' = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2026-04-01' = {
   name: 'default'
   parent: storageAccount
 }
 
-resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2025-01-01' = {
+resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2026-04-01' = {
   name: 'default'
   parent: storageAccount
 }
 
-resource queueServices 'Microsoft.Storage/storageAccounts/queueServices@2025-01-01' = {
+resource queueServices 'Microsoft.Storage/storageAccounts/queueServices@2026-04-01' = {
   name: 'default'
   parent: storageAccount
 }
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: 'asp-${resourceToken}'
   kind: 'functionapp'
   location: location
@@ -146,7 +146,7 @@ var disabledFunctionsSettings = [for f in disabledFunctions: {
   value: 'true'
 }]
 
-resource functionApp 'Microsoft.Web/sites@2024-11-01' = {
+resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   name: 'func-${resourceToken}'
   kind: 'functionapp'
   location: location
