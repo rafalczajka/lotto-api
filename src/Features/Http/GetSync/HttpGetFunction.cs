@@ -38,5 +38,14 @@ internal sealed class HttpGetFunction(
                 StatusCode = StatusCodes.Status502BadGateway
             };
         }
+        catch (Exception e)
+        {
+            logger.LogError(e, "{FunctionName} failed unexpectedly.", FunctionName);
+
+            return new ObjectResult(new ErrorResponse("An unexpected error occurred."))
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
     }
 }
