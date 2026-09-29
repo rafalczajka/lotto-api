@@ -18,19 +18,14 @@ internal sealed class FunctionHandler(
 
         var storageData = await getDataFromStorageTask;
         var apiData = await getDataFromApiTask;
-        logger.LogInformation(
-            "{FunctionName} comparing draw dates: storage={StorageDate}, api={ApiDate}",
-            FunctionName, storageData.DrawDate, apiData.DrawDate);
 
-        if (storageData.DrawDate == apiData.DrawDate)
+        if (storageData?.DrawDate == apiData.DrawDate)
         {
             logger.LogWarning("{FunctionName} skipped: storage already has the latest draw results.", FunctionName);
             return;
         }
 
-        logger.LogInformation(
-            "{FunctionName} persisting new draw results for {DrawDate}",
-            FunctionName, apiData.DrawDate);
+        logger.LogInformation("{FunctionName} persisting new draw results for {DrawDate}.", FunctionName, apiData.DrawDate);
 
         await repository.AddAsync(apiData, cancellationToken);
 

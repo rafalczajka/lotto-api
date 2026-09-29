@@ -32,13 +32,9 @@ internal sealed class HttpGetFunction(
     {
         logger.LogInformation("Fetching draw results...");
 
-        DrawResults result;
+        var result = await repository.GetLatestAsync(cancellationToken);
 
-        try
-        {
-            result = await repository.GetLatestAsync(cancellationToken);
-        }
-        catch (InvalidOperationException)
+        if (result is null)
         {
             logger.LogWarning("No draw results found in storage.");
             return new NotFoundObjectResult("No draw results found.");

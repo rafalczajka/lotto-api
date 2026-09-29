@@ -10,7 +10,7 @@ internal interface IDrawResultsRepository
         int top,
         CancellationToken cancellationToken);
 
-    Task<DrawResults> GetLatestAsync(CancellationToken cancellationToken);
+    Task<DrawResults?> GetLatestAsync(CancellationToken cancellationToken);
 
     Task AddAsync(DrawResults data, CancellationToken cancellationToken);
 }

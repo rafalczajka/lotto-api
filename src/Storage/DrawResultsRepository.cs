@@ -41,7 +41,7 @@ internal sealed class DrawResultsRepository(
         return results;
     }
 
-    public async Task<DrawResults> GetLatestAsync(CancellationToken cancellationToken)
+    public async Task<DrawResults?> GetLatestAsync(CancellationToken cancellationToken)
     {
         var client = tableServiceClient.GetTableClient(_tableName);
 
@@ -49,9 +49,7 @@ internal sealed class DrawResultsRepository(
             .QueryAsync<DrawResultsEntity>(BaseFilter, maxPerPage: 1, cancellationToken: cancellationToken)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return entity is null
-            ? throw new InvalidOperationException("No DrawResults found")
-            : Map(entity);
+        return entity is null ? null : Map(entity);
     }
 
     public async Task AddAsync(DrawResults data, CancellationToken cancellationToken)

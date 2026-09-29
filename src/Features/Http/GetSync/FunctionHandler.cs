@@ -12,16 +12,10 @@ internal sealed class FunctionHandler(
     {
         logger.LogInformation("Handling GetSync.");
 
-        DateOnly? storageDate = null;
+        var storageResult = await repository.GetLatestAsync(cancellationToken);
+        var storageDate = storageResult?.DrawDate;
 
-        try
-        {
-            storageDate = (await repository.GetLatestAsync(cancellationToken)).DrawDate;
-        }
-        catch (InvalidOperationException)
-        {
-            logger.LogWarning("No draw results found in storage.");
-        }
+        if (storageResult is null) logger.LogWarning("No draw results found in storage.");
 
         var apiDate = (await lottoClient.GetLatestDrawResultsAsync(cancellationToken)).DrawDate;
         var isUpToDate = storageDate == apiDate;
