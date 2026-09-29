@@ -1,4 +1,3 @@
-using System.Globalization;
 using Lotto.Draws;
 
 namespace Lotto.Features.Timer.AddLatestDrawResults;
@@ -19,13 +18,11 @@ internal sealed class FunctionHandler(
 
         var storageData = await getDataFromStorageTask;
         var apiData = await getDataFromApiTask;
-        var storageDate = DateOnly.ParseExact(storageData.DrawDate, Defaults.DateFormat, CultureInfo.InvariantCulture);
-
         logger.LogInformation(
             "{FunctionName} comparing draw dates: storage={StorageDate}, api={ApiDate}",
-            FunctionName, storageDate, apiData.DrawDate);
+            FunctionName, storageData.DrawDate, apiData.DrawDate);
 
-        if (storageDate == apiData.DrawDate)
+        if (storageData.DrawDate == apiData.DrawDate)
         {
             logger.LogWarning("{FunctionName} skipped: storage already has the latest draw results.", FunctionName);
             return;
@@ -40,4 +37,3 @@ internal sealed class FunctionHandler(
         logger.LogInformation("{FunctionName} handler finished successfully.", FunctionName);
     }
 }
-

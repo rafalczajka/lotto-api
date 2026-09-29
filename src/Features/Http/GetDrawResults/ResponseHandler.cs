@@ -51,8 +51,8 @@ internal sealed class ResponseHandler(
         var records = data
             .Select(r => new DrawResultsCsvRecord(
                 r.DrawDate.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
-                r.LottoNumbersString,
-                r.PlusNumbersString))
+                string.Join(",", r.LottoNumbers),
+                string.Join(",", r.PlusNumbers)))
             .ToList();
 
         logger.LogInformation("Successfully retrieved {ResultCount} results. Creating a CSV file...", records.Count);

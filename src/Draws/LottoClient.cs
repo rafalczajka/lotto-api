@@ -23,9 +23,7 @@ internal sealed class LottoClient(HttpClient client)
         {
             DrawDate = DateOnly.FromDateTime(response.First().DrawDate),
             LottoNumbers = lottoNumbers,
-            PlusNumbers = plusNumbers,
-            LottoNumbersString = string.Join(",", lottoNumbers),
-            PlusNumbersString = string.Join(",", plusNumbers)
+            PlusNumbers = plusNumbers
         };
     }
 }

@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using Lotto.Attributes;
 using Lotto.Draws;
-using Lotto.Storage.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lotto.Features.Http.GetLatestDrawResults;
@@ -37,7 +36,7 @@ internal sealed class HttpGetFunction(
 
         try
         {
-            result = (await repository.GetLatestAsync(cancellationToken)).ToDrawResults();
+            result = await repository.GetLatestAsync(cancellationToken);
         }
         catch (InvalidOperationException)
         {

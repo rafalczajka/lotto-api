@@ -1,6 +1,4 @@
-using System.Globalization;
 using Lotto.Draws;
-using Lotto.Storage.Entities;
 
 namespace Lotto.Features.Http.GetDrawResultsByDate;
 
@@ -10,19 +8,11 @@ internal sealed class FunctionHandler(IDrawResultsRepository repository, ILogger
     {
         logger.LogInformation("Handling GetDrawResultsByDate - Date: {Date}", date);
 
-        var filter = $"DrawDate eq '{date.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture)}'";
+        var result = (await repository.GetAsync(date, date, 1, cancellationToken)).FirstOrDefault();
 
-        logger.LogInformation("Final query filter: {Filter}", filter);
-        logger.LogInformation("Fetching results from storage...");
+        if (result is not null) return result;
 
-        var result = (await repository.GetAsync(filter, 1, cancellationToken)).FirstOrDefault();
-
-        if (result is null)
-        {
-            logger.LogWarning("No draw results found for the given date.");
-            return null;
-        }
-
-        return result.ToDrawResults();
+        logger.LogWarning("No draw results found for the given date.");
+        return null;
     }
 }

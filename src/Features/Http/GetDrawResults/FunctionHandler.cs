@@ -1,6 +1,5 @@
 using System.Globalization;
 using Lotto.Draws;
-using Lotto.Storage.Entities;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Lotto.Features.Http.GetDrawResults;
@@ -30,28 +29,23 @@ internal sealed class FunctionHandler(
             return cachedResults;
         }
 
-        var filter = BuildGetDrawResultsFilter(dateFrom, dateTo);
-
-        logger.LogInformation("Final query filter: {Filter}", filter);
         logger.LogInformation("Fetching results from storage...");
 
         var resultsTopValue = top ?? int.MaxValue;
-
-        var results = (await repository.GetAsync(filter, resultsTopValue, cancellationToken)).ToList();
-        var drawResults = results.Select(r => r.ToDrawResults()).ToArray();
+        var drawResults = (await repository.GetAsync(dateFrom, dateTo, resultsTopValue, cancellationToken)).ToArray();
 
         cache.Set(cacheKey, drawResults, new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = CacheDuration
         });
 
-        if (results.Count == 0)
+        if (drawResults.Length == 0)
         {
             logger.LogWarning("No draw results found for the given filter.");
             return [];
         }
 
-        logger.LogInformation("Handled GetDrawResult. Successfully retrieved {Count} results.", results.Count);
+        logger.LogInformation("Handled GetDrawResult. Successfully retrieved {Count} results.", drawResults.Length);
 
         return drawResults;
     }
@@ -64,19 +58,4 @@ internal sealed class FunctionHandler(
         return $"GetDrawResults:{dateFrom}:{dateTo}:{top}";
     }
 
-    private static string BuildGetDrawResultsFilter(DateOnly? dateFrom, DateOnly? dateTo)
-    {
-        var filter = "";
-
-        if (dateFrom is not null)
-            filter = $"DrawDate ge '{((DateOnly)dateFrom).ToString(Defaults.DateFormat, CultureInfo.InvariantCulture)}'";
-
-        if (dateTo is not null)
-            filter = $"{filter} and DrawDate le '{((DateOnly)dateTo).ToString(Defaults.DateFormat, CultureInfo.InvariantCulture)}'";
-
-        if (filter.StartsWith(" and", StringComparison.InvariantCulture))
-            filter = filter[4..];
-
-        return filter;
-    }
 }

@@ -16,12 +16,7 @@ internal sealed class FunctionHandler(
 
         try
         {
-            var storageResult = await repository.GetLatestAsync(cancellationToken);
-
-            storageDate = DateOnly.ParseExact(
-                storageResult.DrawDate,
-                Defaults.DateFormat,
-                CultureInfo.InvariantCulture);
+            storageDate = (await repository.GetLatestAsync(cancellationToken)).DrawDate;
         }
         catch (InvalidOperationException)
         {
