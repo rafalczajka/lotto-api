@@ -95,21 +95,18 @@ Returns synchronization status between storage and the external Lotto API.
 
    Linux / MacOS
    ```bash
-   cd tools
    python -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
    Windows (PowerShell):
    ```powershell
-   cd tools
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
    pip install -r requirements.txt
    ```
    Windows (Command Prompt):
    ```cmd
-   cd tools
    python -m venv .venv
    .venv\Scripts\activate.bat
    pip install -r requirements.txt
@@ -126,8 +123,8 @@ Returns synchronization status between storage and the external Lotto API.
 3. **Initialize data**:
    ```bash
    # Fetch data from Lotto.pl API (default start date: 2000-01-01)
-   python fetch_to_csv.py -d 2000-01-01 -f data.csv
+   python -m tools fetch data.csv --from 2000-01-01
 
    # Upload to Azure Storage
-   python csv_to_storage.py -f data.csv
+   python -m tools upload data.csv
    ```

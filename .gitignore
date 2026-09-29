@@ -17,7 +17,10 @@ Desktop.ini
 .venv/
 .env
 
-tools/*.csv
+__pycache__/
+
+/*.csv
+/tools/*.csv
 init_azure.sh
 azure-credentials.json
 
