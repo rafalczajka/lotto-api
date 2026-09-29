@@ -10,12 +10,13 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
-builder.Services.AddSingleton(new JsonSerializerOptions
-{
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-    WriteIndented = false
-});
+builder.Services
+    .AddMvc()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    });
 
 builder.Services.AddHttpClient<LottoClient>(client =>
 {

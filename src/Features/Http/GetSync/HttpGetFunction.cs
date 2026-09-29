@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using Lotto.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +7,6 @@ namespace Lotto.Features.Http.GetSync;
 
 internal sealed class HttpGetFunction(
     FunctionHandler handler,
-    JsonSerializerOptions jsonSerializerOptions,
     ILogger<HttpGetFunction> logger)
 {
     private const string FunctionName = "GetSync";
@@ -29,12 +27,7 @@ internal sealed class HttpGetFunction(
             var status = await handler.HandleAsync(cancellationToken);
             logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
 
-            return new ContentResult
-            {
-                Content = JsonSerializer.Serialize(status, jsonSerializerOptions),
-                ContentType = "application/json",
-                StatusCode = 200
-            };
+            return new OkObjectResult(status);
         }
         catch (HttpRequestException e)
         {

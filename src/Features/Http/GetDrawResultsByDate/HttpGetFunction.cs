@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Net;
-using System.Text.Json;
 using Lotto.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +7,6 @@ namespace Lotto.Features.Http.GetDrawResultsByDate;
 
 internal sealed class HttpGetFunction(
     FunctionHandler handler,
-    JsonSerializerOptions jsonSerializerOptions,
     ILogger<HttpGetFunction> logger)
 {
     private const string FunctionName = "GetDrawResultsByDate";
@@ -41,19 +39,9 @@ internal sealed class HttpGetFunction(
 
         var result = await handler.HandleAsync(parsedDate, cancellationToken);
 
-        if (result is null)
-        {
-            return new NotFoundObjectResult("No draw results found for the given date.");
-        }
+        if (result is not null) return new OkObjectResult(result.ToDrawResultsDto());
 
-        var dto = result.ToDrawResultsDto();
-
-        return new ContentResult
-        {
-            Content = JsonSerializer.Serialize(dto, jsonSerializerOptions),
-            ContentType = "application/json",
-            StatusCode = 200
-        };
+        return new NotFoundObjectResult("No draw results found for the given date.");
     }
 
     private static bool TryParseDate(string date, out DateOnly parsedDate, out string? errorMessage)

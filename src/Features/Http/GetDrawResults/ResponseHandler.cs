@@ -1,16 +1,13 @@
 ﻿using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Text.Json;
 using CsvHelper;
 using Lotto.Draws;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lotto.Features.Http.GetDrawResults;
 
-internal sealed class ResponseHandler(
-    JsonSerializerOptions jsonSerializerOptions,
-    ILogger<ResponseHandler> logger)
+internal sealed class ResponseHandler(ILogger<ResponseHandler> logger)
 {
     public async Task<IActionResult> HandleAsync(
         IList<DrawResults> results,
@@ -31,17 +28,11 @@ internal sealed class ResponseHandler(
         return new NotFoundObjectResult("No historical draw results found.");
     }
 
-    private ContentResult CreateJsonResponse(IList<DrawResults> data)
+    private IActionResult CreateJsonResponse(IList<DrawResults> data)
     {
         var dto = data.Select(r => r.ToDrawResultsDto()).ToList();
         logger.LogInformation("Successfully retrieved {ResultCount} results. Sending JSON response...", dto.Count);
-
-        return new ContentResult
-        {
-            Content = JsonSerializer.Serialize(dto, jsonSerializerOptions),
-            ContentType = "application/json",
-            StatusCode = 200
-        };
+        return new OkObjectResult(dto);
     }
 
     private async Task<IActionResult> CreateCsvResponseAsync(

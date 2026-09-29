@@ -1,14 +1,11 @@
 using System.Net;
-using System.Text.Json;
 using Lotto.Attributes;
-using Lotto.Draws;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lotto.Features.Http.GetLatestDrawResults;
 
 internal sealed class HttpGetFunction(
     IDrawResultsRepository repository,
-    JsonSerializerOptions jsonSerializerOptions,
     ILogger<HttpGetFunction> logger)
 {
     private const string FunctionName = "GetLatestDrawResults";
@@ -34,19 +31,9 @@ internal sealed class HttpGetFunction(
 
         var result = await repository.GetLatestAsync(cancellationToken);
 
-        if (result is null)
-        {
-            logger.LogWarning("No draw results found in storage.");
-            return new NotFoundObjectResult("No draw results found.");
-        }
+        if (result is not null) return new OkObjectResult(result.ToDrawResultsDto());
 
-        var dto = result.ToDrawResultsDto();
-
-        return new ContentResult
-        {
-            Content = JsonSerializer.Serialize(dto, jsonSerializerOptions),
-            ContentType = "application/json",
-            StatusCode = 200
-        };
+        logger.LogWarning("No draw results found in storage.");
+        return new NotFoundObjectResult("No draw results found.");
     }
 }
