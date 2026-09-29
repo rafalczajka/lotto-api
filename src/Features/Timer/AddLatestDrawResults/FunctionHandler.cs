@@ -1,3 +1,4 @@
+using System.Globalization;
 using Lotto.Draws;
 
 namespace Lotto.Features.Timer.AddLatestDrawResults;
@@ -16,32 +17,25 @@ internal sealed class FunctionHandler(
         var getDataFromStorageTask = repository.GetLatestAsync(cancellationToken);
         var getDataFromApiTask = lottoClient.GetLatestDrawResultsAsync(cancellationToken);
 
-        try
+        var storageData = await getDataFromStorageTask;
+        var apiData = await getDataFromApiTask;
+        var storageDate = DateOnly.ParseExact(storageData.DrawDate, Defaults.DateFormat, CultureInfo.InvariantCulture);
+
+        logger.LogInformation(
+            "{FunctionName} comparing draw dates: storage={StorageDate}, api={ApiDate}",
+            FunctionName, storageDate, apiData.DrawDate);
+
+        if (storageDate == apiData.DrawDate)
         {
-            var storageData = await getDataFromStorageTask;
-            var apiData = await getDataFromApiTask;
-
-            logger.LogInformation(
-                "{FunctionName} comparing draw dates: storage={StorageDate}, api={ApiDate}",
-                FunctionName, storageData.DrawDate, apiData.DrawDate);
-
-            if (storageData.DrawDate == apiData.DrawDate)
-            {
-                logger.LogWarning("{FunctionName} skipped: storage already has the latest draw results.", FunctionName);
-                return;
-            }
-
-            logger.LogInformation(
-                "{FunctionName} persisting new draw results for {DrawDate}",
-                FunctionName, apiData.DrawDate);
-
-            await repository.AddAsync(apiData, cancellationToken);
+            logger.LogWarning("{FunctionName} skipped: storage already has the latest draw results.", FunctionName);
+            return;
         }
-        catch (Exception e)
-        {
-            logger.LogError("{FunctionName} failed while adding latest data: {ErrorMessage}", FunctionName, e.Message);
-            throw;
-        }
+
+        logger.LogInformation(
+            "{FunctionName} persisting new draw results for {DrawDate}",
+            FunctionName, apiData.DrawDate);
+
+        await repository.AddAsync(apiData, cancellationToken);
 
         logger.LogInformation("{FunctionName} handler finished successfully.", FunctionName);
     }

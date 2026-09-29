@@ -2,7 +2,7 @@
 
 internal sealed class DrawResults
 {
-    public required string DrawDate { get; init; }
+    public required DateOnly DrawDate { get; init; }
 
     public required IEnumerable<int> LottoNumbers { get; init; }
 

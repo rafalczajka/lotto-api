@@ -2,5 +2,5 @@
 
 internal interface IRowKeyGenerator
 {
-    string GenerateRowKey(DateTime date);
+    string GenerateRowKey(DateOnly date);
 }

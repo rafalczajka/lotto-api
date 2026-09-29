@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
 
@@ -22,7 +21,7 @@ internal sealed class LottoClient(HttpClient client)
 
         return new DrawResults
         {
-            DrawDate = response.First().DrawDate.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
+            DrawDate = DateOnly.FromDateTime(response.First().DrawDate),
             LottoNumbers = lottoNumbers,
             PlusNumbers = plusNumbers,
             LottoNumbersString = string.Join(",", lottoNumbers),

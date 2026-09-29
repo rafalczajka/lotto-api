@@ -25,18 +25,10 @@ internal sealed class HttpGetFunction(
         string date,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            logger.LogInformation("{FunctionName} handling request for date {Date}", FunctionName, date);
-            var response = await HandleRequestAsync(date, cancellationToken);
-            logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
-            return response;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "{FunctionName} failed while processing request.", FunctionName);
-            throw;
-        }
+        logger.LogInformation("{FunctionName} handling request for date {Date}", FunctionName, date);
+        var response = await HandleRequestAsync(date, cancellationToken);
+        logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
+        return response;
     }
 
     private async Task<IActionResult> HandleRequestAsync(string date, CancellationToken cancellationToken)
@@ -54,7 +46,7 @@ internal sealed class HttpGetFunction(
             return new NotFoundObjectResult("No draw results found for the given date.");
         }
 
-        var dto = new DrawResultsDto(result.DrawDate, result.LottoNumbers, result.PlusNumbers);
+        var dto = result.ToDrawResultsDto();
 
         return new ContentResult
         {

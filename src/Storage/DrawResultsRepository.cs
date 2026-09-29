@@ -52,14 +52,13 @@ internal sealed class DrawResultsRepository(
 
     public async Task AddAsync(DrawResults data, CancellationToken cancellationToken)
     {
-        var drawDate = DateTime.Parse(data.DrawDate, CultureInfo.InvariantCulture);
-        var rowKey = rowKeyGenerator.GenerateRowKey(drawDate);
+        var rowKey = rowKeyGenerator.GenerateRowKey(data.DrawDate);
 
         var entity = new DrawResultsEntity
         {
             PartitionKey = PartitionKey,
             RowKey = rowKey,
-            DrawDate = data.DrawDate,
+            DrawDate = data.DrawDate.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
             LottoNumbers = data.LottoNumbersString,
             PlusNumbers = data.PlusNumbersString
         };

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Lotto.Draws;
 
 namespace Lotto.Features.Http.GetSync;
@@ -11,11 +12,16 @@ internal sealed class FunctionHandler(
     {
         logger.LogInformation("Handling GetSync.");
 
-        string? storageDate = null;
+        DateOnly? storageDate = null;
 
         try
         {
-            storageDate = (await repository.GetLatestAsync(cancellationToken)).DrawDate;
+            var storageResult = await repository.GetLatestAsync(cancellationToken);
+
+            storageDate = DateOnly.ParseExact(
+                storageResult.DrawDate,
+                Defaults.DateFormat,
+                CultureInfo.InvariantCulture);
         }
         catch (InvalidOperationException)
         {
@@ -23,12 +29,15 @@ internal sealed class FunctionHandler(
         }
 
         var apiDate = (await lottoClient.GetLatestDrawResultsAsync(cancellationToken)).DrawDate;
-        var isUpToDate = !string.IsNullOrWhiteSpace(storageDate) && storageDate == apiDate;
+        var isUpToDate = storageDate == apiDate;
 
         logger.LogInformation(
             "Sync status - StorageDate: {StorageDate}, ApiDate: {ApiDate}, UpToDate: {UpToDate}",
             storageDate, apiDate, isUpToDate);
 
-        return new SyncDto(storageDate, apiDate, isUpToDate);
+        return new SyncDto(
+            storageDate?.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
+            apiDate.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
+            isUpToDate);
     }
 }

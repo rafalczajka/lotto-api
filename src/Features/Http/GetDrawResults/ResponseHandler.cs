@@ -33,7 +33,7 @@ internal sealed class ResponseHandler(
 
     private ContentResult CreateJsonResponse(IList<DrawResults> data)
     {
-        var dto = data.Select(r => new DrawResultsDto(r.DrawDate, r.LottoNumbers, r.PlusNumbers)).ToList();
+        var dto = data.Select(r => r.ToDrawResultsDto()).ToList();
         logger.LogInformation("Successfully retrieved {ResultCount} results. Sending JSON response...", dto.Count);
 
         return new ContentResult
@@ -49,7 +49,10 @@ internal sealed class ResponseHandler(
         CancellationToken cancellationToken)
     {
         var records = data
-            .Select(r => new DrawResultsCsvRecord(r.DrawDate, r.LottoNumbersString, r.PlusNumbersString))
+            .Select(r => new DrawResultsCsvRecord(
+                r.DrawDate.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
+                r.LottoNumbersString,
+                r.PlusNumbersString))
             .ToList();
 
         logger.LogInformation("Successfully retrieved {ResultCount} results. Creating a CSV file...", records.Count);
@@ -60,7 +63,7 @@ internal sealed class ResponseHandler(
 
         return new FileContentResult(Encoding.UTF8.GetBytes(writer.ToString()), "application/octet-stream")
         {
-            FileDownloadName = $"lotto-export_{DateTime.Now:yyyyMMddHHmmss}.csv"
+            FileDownloadName = $"lotto-export_{DateTimeOffset.UtcNow:yyyyMMddHHmmss}.csv"
         };
     }
 }

@@ -4,12 +4,9 @@ namespace Lotto.Storage;
 
 internal sealed class RowKeyGenerator : IRowKeyGenerator
 {
-    public string GenerateRowKey(DateTime date)
+    public string GenerateRowKey(DateOnly date)
     {
-        var dateDifference = DateTime.MaxValue - date;
-        var dateReversed = DateTime.MinValue + dateDifference;
-        return dateReversed.ToString(
-            Defaults.DateFormat.Replace("-", "", StringComparison.InvariantCulture),
-            CultureInfo.InvariantCulture);
+        var reversedDate = DateOnly.FromDayNumber(DateOnly.MaxValue.DayNumber - date.DayNumber);
+        return reversedDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
     }
 }

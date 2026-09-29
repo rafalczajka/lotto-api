@@ -1,4 +1,5 @@
 ﻿using Azure;
+using System.Globalization;
 using Azure.Data.Tables;
 using Lotto.Draws;
 
@@ -27,7 +28,7 @@ internal static class DrawResultsEntityExtensions
     {
         return new DrawResults
         {
-            DrawDate = entity.DrawDate,
+            DrawDate = DateOnly.ParseExact(entity.DrawDate, Defaults.DateFormat, CultureInfo.InvariantCulture),
             LottoNumbers = entity.LottoNumbers.Split(',').Select(int.Parse),
             PlusNumbers = !string.IsNullOrWhiteSpace(entity.PlusNumbers)
                 ? entity.PlusNumbers.Split(',').Select(int.Parse)

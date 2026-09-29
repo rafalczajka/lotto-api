@@ -13,42 +13,53 @@ internal sealed class DrawResultsSeeder(
     IRowKeyGenerator rowKeyGenerator,
     IOptions<TableOptions> tableOptions) : IHostedService
 {
+    private const int SeedDateRangeInYears = 10;
+    private const int MaxTransactionSize = 100;
+    private const string PartitionKey = "LottoData";
+
+    private static readonly TimeZoneInfo DrawTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
+
     private readonly string _tableName = tableOptions.Value.DrawResultsTableName;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         if (!env.IsDevelopment()) return;
 
-        const int seedDateRangeInYears = 10;
-
         var tableClient = tableServiceClient.GetTableClient(_tableName);
-        var tableAlreadyExists = !await TryCreateTableAsync(tableClient, cancellationToken);
+        var tableCreated = await TryCreateTableAsync(tableClient, cancellationToken);
 
-        if (tableAlreadyExists) return;
+        if (!tableCreated) return;
 
-        var seedStartDate = DateTime.Now.AddYears(-seedDateRangeInYears);
-        var draws = GenerateDrawSchedule(seedStartDate);
-        var now = DateTime.UtcNow;
-        var random = new Random();
+        var createdAt = DateTimeOffset.UtcNow;
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(createdAt, DrawTimeZone).DateTime);
+        var draws = GenerateDrawSchedule(today.AddYears(-SeedDateRangeInYears), today);
+        var batch = new List<TableTransactionAction>(MaxTransactionSize);
 
         foreach (var drawDate in draws)
         {
+            var random = new Random(drawDate.DayNumber);
             var lotto = GenerateNumbers(random);
             var plus = GenerateNumbers(random);
-            var rowKey = rowKeyGenerator.GenerateRowKey(drawDate);
 
             var entity = new DrawResultsEntity
             {
-                PartitionKey = "LottoData",
-                RowKey = rowKey,
-                Timestamp = now,
+                PartitionKey = PartitionKey,
+                RowKey = rowKeyGenerator.GenerateRowKey(drawDate),
+                Timestamp = createdAt,
                 DrawDate = drawDate.ToString(Defaults.DateFormat, CultureInfo.InvariantCulture),
                 LottoNumbers = string.Join(",", lotto),
                 PlusNumbers = string.Join(",", plus)
             };
 
-            await tableClient.UpsertEntityAsync(entity, TableUpdateMode.Replace, cancellationToken);
+            batch.Add(new TableTransactionAction(TableTransactionActionType.UpsertReplace, entity));
+
+            if (batch.Count != MaxTransactionSize) continue;
+
+            await tableClient.SubmitTransactionAsync(batch, cancellationToken);
+            batch.Clear();
         }
+
+        if (batch.Count > 0) await tableClient.SubmitTransactionAsync(batch, cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -66,18 +77,12 @@ internal sealed class DrawResultsSeeder(
         }
     }
 
-    private static IEnumerable<DateTime> GenerateDrawSchedule(DateTime startDate)
+    private static IEnumerable<DateOnly> GenerateDrawSchedule(DateOnly startDate, DateOnly endDate)
     {
-        var date = startDate.Date;
-
-        while (date < DateTime.Now.Date)
+        for (var date = startDate; date < endDate; date = date.AddDays(1))
         {
-            var dayOfWeek = date.DayOfWeek;
-
-            if (dayOfWeek is DayOfWeek.Tuesday or DayOfWeek.Thursday or DayOfWeek.Saturday)
-                yield return new DateTime(date.Year, date.Month, date.Day);
-
-            date = date.AddDays(1);
+            if (date.DayOfWeek is DayOfWeek.Tuesday or DayOfWeek.Thursday or DayOfWeek.Saturday)
+                yield return date;
         }
     }
 
@@ -87,8 +92,8 @@ internal sealed class DrawResultsSeeder(
         var set = new HashSet<int>();
 
         while (set.Count < numbersInSingleDraw)
-            set.Add(random.Next(1, 50)); // between 1 and 49
+            set.Add(random.Next(1, 50));
 
-        return set.ToList().Order();
+        return set.Order();
     }
 }

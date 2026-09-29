@@ -23,18 +23,10 @@ internal sealed class HttpGetFunction(
         [HttpTrigger("get", Route = "draw-results/latest")] HttpRequest _,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            logger.LogInformation("{FunctionName} handling request.", FunctionName);
-            var response = await HandleRequestAsync(cancellationToken);
-            logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
-            return response;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "{FunctionName} failed while processing request.", FunctionName);
-            throw;
-        }
+        logger.LogInformation("{FunctionName} handling request.", FunctionName);
+        var response = await HandleRequestAsync(cancellationToken);
+        logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
+        return response;
     }
 
     private async Task<IActionResult> HandleRequestAsync(CancellationToken cancellationToken)
@@ -53,10 +45,7 @@ internal sealed class HttpGetFunction(
             return new NotFoundObjectResult("No draw results found.");
         }
 
-        var dto = new DrawResultsDto(
-            DrawDate: result.DrawDate,
-            LottoNumbers: result.LottoNumbers,
-            PlusNumbers: result.PlusNumbers);
+        var dto = result.ToDrawResultsDto();
 
         return new ContentResult
         {

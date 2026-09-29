@@ -11,16 +11,8 @@ internal sealed class TimerFunction(FunctionHandler handler, ILogger<TimerFuncti
         [TimerTrigger("%DataSyncSchedule%", UseMonitor = false)] TimerInfo _,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            logger.LogInformation("{FunctionName} function triggered at: {TriggerTime}", FunctionName, DateTime.UtcNow);
-            await handler.HandleAsync(cancellationToken);
-            logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
-        }
-        catch (Exception e)
-        {
-            logger.LogError("{FunctionName} Failed. Error: {ErrorMessage}", FunctionName, e.Message);
-            throw;
-        }
+        logger.LogInformation("{FunctionName} function triggered at: {TriggerTime}", FunctionName, DateTimeOffset.UtcNow);
+        await handler.HandleAsync(cancellationToken);
+        logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
     }
 }

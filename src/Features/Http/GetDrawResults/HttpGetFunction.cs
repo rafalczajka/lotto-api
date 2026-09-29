@@ -26,20 +26,12 @@ internal sealed class HttpGetFunction(
         [HttpTrigger("get", Route = "draw-results")] HttpRequest request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            logger.LogInformation(
-                "{FunctionName} handling request with query {QueryString} and accept {AcceptHeader}",
-                FunctionName, request.QueryString, request.Headers.Accept.ToString());
-            var response = await HandleRequestAsync(request, cancellationToken);
-            logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
-            return response;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "{FunctionName} failed while processing request.", FunctionName);
-            throw;
-        }
+        logger.LogInformation(
+            "{FunctionName} handling request with query {QueryString} and accept {AcceptHeader}",
+            FunctionName, request.QueryString, request.Headers.Accept.ToString());
+        var response = await HandleRequestAsync(request, cancellationToken);
+        logger.LogInformation("{FunctionName} finished successfully.", FunctionName);
+        return response;
     }
 
     private async Task<IActionResult> HandleRequestAsync(HttpRequest request, CancellationToken cancellationToken)
