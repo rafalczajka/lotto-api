@@ -34,9 +34,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Dev\" />
-    <Folder Include="Features\Timer\" />
-  </ItemGroup>
-
 </Project>
