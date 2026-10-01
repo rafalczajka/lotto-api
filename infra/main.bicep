@@ -4,6 +4,7 @@
 
 @description('A unique token used for resource name generation.')
 @minLength(3)
+@maxLength(21)
 param resourceToken string = toLower(uniqueString(subscription().id, location))
 
 @description('A unique token used for resource name generation without dashes.')
@@ -196,6 +197,39 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
           value: drawResultsTableName
         }
       ], disabledFunctionsSettings)
+    }
+    httpsOnly: true
+  }
+}
+
+resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
+  name: 'func-${resourceToken}-mcp'
+  kind: 'functionapp'
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet-isolated'
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: 'InstrumentationKey=${appInsights.properties.InstrumentationKey}'
+        }
+        {
+          name: 'WEBSITE_TIME_ZONE'
+          value: timeZone
+        }
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+        }
+      ]
     }
     httpsOnly: true
   }
