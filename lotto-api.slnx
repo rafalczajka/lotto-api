@@ -12,5 +12,6 @@
     <Project Path="tests/UnitTests/UnitTests.csproj" />
     <File Path="tests/Directory.Build.props" />
   </Folder>
+  <Project Path="mcp/Lotto.MCP.csproj" />
   <Project Path="src/Lotto.csproj" />
 </Solution>
