@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "WEBSITE_TIME_ZONE": "Central European Standard Time",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "ApiBaseUrl": "http://localhost:7163",
+    "ApiKey": "-"
+  }
+}

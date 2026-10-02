@@ -1,4 +1,3 @@
-using System;
 using System.Net.Http.Headers;
 using Lotto.MCP;
 using Microsoft.Azure.Functions.Worker.Builder;

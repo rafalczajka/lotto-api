@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Lotto.MCP;
 
@@ -28,7 +24,7 @@ internal sealed class ApiClient(HttpClient httpClient)
 
     public Task<DrawResultsDto> GetDrawResultsByDateAsync(DateOnly date, CancellationToken cancellationToken = default)
     {
-        var requestUri = $"api/draw-results/{date.ToString(DateFormat)}";
+        var requestUri = $"api/draw-results/{date.ToString(DateFormat, CultureInfo.InvariantCulture)}";
         return GetRequiredAsync<DrawResultsDto>(requestUri, cancellationToken);
     }
 
