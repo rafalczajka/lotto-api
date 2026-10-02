@@ -6,6 +6,7 @@ on:
     paths:
       - 'infra/**'
       - 'src/**'
+      - 'mcp/**'
       - 'Directory.*.props'
       - '.github/workflows/**'
 
@@ -17,6 +18,7 @@ concurrency:
 
 env:
   FUNCTION_APP_SRC_DIRECTORY: src/
+  MCP_FUNCTION_APP_SRC_DIRECTORY: mcp/
   INFRASTRUCTURE_DIRECTORY: infra/
 
   BICEP_FILE_NAME: main.bicep
@@ -24,6 +26,9 @@ env:
 
   FUNCTION_APP_ARTIFACT_NAME: functionapp
   FUNCTION_APP_ZIP_NAME: functionapp.zip
+
+  MCP_FUNCTION_APP_ARTIFACT_NAME: mcp-functionapp
+  MCP_FUNCTION_APP_ZIP_NAME: mcp-functionapp.zip
 
 jobs:
   validate-infrastructure:
@@ -76,6 +81,21 @@ jobs:
           path: ${{ env.FUNCTION_APP_ZIP_NAME }}
           if-no-files-found: error
 
+      - name: Publish MCP Function App
+        run: dotnet publish ${{ env.MCP_FUNCTION_APP_SRC_DIRECTORY }} -c Release --no-build -o ./mcp-publish
+
+      - name: Package MCP Function App
+        run: |
+          cd mcp-publish
+          zip -r ../${{ env.MCP_FUNCTION_APP_ZIP_NAME }} .
+
+      - name: Upload MCP Function App Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.MCP_FUNCTION_APP_ARTIFACT_NAME }}
+          path: ${{ env.MCP_FUNCTION_APP_ZIP_NAME }}
+          if-no-files-found: error
+
   deploy-infrastructure:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
@@ -84,6 +104,7 @@ jobs:
     environment: production
     outputs:
       appName: ${{ steps.deploy.outputs.appName }}
+      mcpAppName: ${{ steps.deploy.outputs.mcpAppName }}
       keyVaultName: ${{ steps.deploy.outputs.keyVaultName }}
       secretName: ${{ steps.deploy.outputs.secretName }}
 
@@ -127,10 +148,12 @@ jobs:
             --output json)
 
           appName=$(echo $deploymentOutput | jq -r '.appName.value')
+          mcpAppName=$(echo $deploymentOutput | jq -r '.mcpAppName.value')
           keyVaultName=$(echo $deploymentOutput | jq -r '.keyVaultName.value')
           secretName=$(echo $deploymentOutput | jq -r '.secretName.value')
 
           echo "appName=$appName" >> $GITHUB_OUTPUT
+          echo "mcpAppName=$mcpAppName" >> $GITHUB_OUTPUT
           echo "keyVaultName=$keyVaultName" >> $GITHUB_OUTPUT
           echo "secretName=$secretName" >> $GITHUB_OUTPUT
 
@@ -166,3 +189,29 @@ jobs:
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name ${{ needs.deploy-infrastructure.outputs.appName }} \
             --src functionapp/${{ env.FUNCTION_APP_ZIP_NAME }}
+
+  deploy-mcp-functionapp:
+    name: Deploy MCP Function App
+    runs-on: ubuntu-latest
+    needs: [build-functionapp, deploy-infrastructure]
+    if: github.event_name != 'pull_request'
+    environment: production
+
+    steps:
+      - name: Download MCP Function App Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ env.MCP_FUNCTION_APP_ARTIFACT_NAME }}
+          path: mcp-functionapp
+
+      - name: Azure Login
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy To Azure
+        run: |
+          az functionapp deployment source config-zip \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --name ${{ needs.deploy-infrastructure.outputs.mcpAppName }} \
+            --src mcp-functionapp/${{ env.MCP_FUNCTION_APP_ZIP_NAME }}

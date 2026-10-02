@@ -202,6 +202,14 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   }
 }
 
+#disable-next-line BCP081
+resource mcpApiKey 'Microsoft.Web/sites/host/functionKeys@2022-09-01' = {
+  name: '${functionApp.name}/default/mcp'
+  properties: {
+    name: 'mcp'
+  }
+}
+
 resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
   name: 'func-${resourceToken}-mcp'
   kind: 'functionapp'
@@ -218,10 +226,6 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
           value: 'dotnet-isolated'
         }
         {
-          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: 'InstrumentationKey=${appInsights.properties.InstrumentationKey}'
-        }
-        {
           name: 'WEBSITE_TIME_ZONE'
           value: timeZone
         }
@@ -229,10 +233,19 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
           name: 'AzureWebJobsStorage'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
         }
+        {
+          name: 'ApiBaseUrl'
+          value: 'https://${functionApp.properties.defaultHostName}/'
+        }
+        {
+          name: 'ApiKey'
+          value: listKeys('${functionApp.id}/host/default', functionApp.apiVersion).functionKeys.mcp
+        }
       ]
     }
     httpsOnly: true
   }
+  dependsOn: [mcpApiKey]
 }
 
 resource keyVaultAccessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2026-02-01' = {
@@ -317,5 +330,6 @@ resource keyVaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
 //*************************************
 
 output appName string = functionApp.name
+output mcpAppName string = functionAppMcp.name
 output keyVaultName string = keyVault.name
 output secretName string = lottoApiKeySecretName
