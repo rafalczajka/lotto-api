@@ -18,6 +18,8 @@ DEFAULT_CSV_FILE_NAME = 'data.csv'
 DEFAULT_START_DATE = '2000-01-01'
 DEFAULT_BATCH_SIZE = 100
 
+DRAW_SCHEDULE_CHANGE_DATE = datetime.date(2007, 9, 4)
+
 REQUEST_DELAY_SEC = 1
 MAX_HTTP_500_RETRIES = 3
 TIMEZONE = ZoneInfo('Europe/Warsaw')
@@ -80,6 +82,20 @@ def fetch_draw_results(date: str) -> tuple[int, dict]:
     return status_code, response.json()
 
 
+def is_lotto_draw_day(date: datetime.date) -> bool:
+    if date < DRAW_SCHEDULE_CHANGE_DATE:
+        return date.weekday() in {
+            2,  # Wednesday
+            5,  # Saturday
+        }
+
+    return date.weekday() in {
+        1,  # Tuesday
+        3,  # Thursday
+        5,  # Saturday
+    }
+
+
 def fetch_data(filename: Path, start_date: str) -> None:
     date = datetime.date.fromisoformat(start_date)
     end_date = datetime.datetime.now(tz=TIMEZONE).date()
@@ -98,6 +114,10 @@ def fetch_data(filename: Path, start_date: str) -> None:
         file.flush()
 
         while date <= end_date:
+            if not is_lotto_draw_day(date):
+                date += datetime.timedelta(days=1)
+                continue
+
             date_str = date.isoformat()
 
             status_code, data = fetch_draw_results(date_str)
