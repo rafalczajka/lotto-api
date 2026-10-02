@@ -202,14 +202,6 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   }
 }
 
-#disable-next-line BCP081
-resource mcpApiKey 'Microsoft.Web/sites/host/functionKeys@2022-09-01' = {
-  name: '${functionApp.name}/default/mcp'
-  properties: {
-    name: 'mcp'
-  }
-}
-
 resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
   name: 'func-${resourceToken}-mcp'
   kind: 'functionapp'
@@ -239,7 +231,7 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
         }
         {
           name: 'ApiKey'
-          value: mcpApiKey.properties.value
+          value: listKeys('${functionApp.id}/host/default', functionApp.apiVersion).functionKeys.default
         }
       ]
     }
