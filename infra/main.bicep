@@ -239,13 +239,12 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
         }
         {
           name: 'ApiKey'
-          value: listKeys('${functionApp.id}/host/default', functionApp.apiVersion).functionKeys.mcp
+          value: mcpApiKey.properties.value
         }
       ]
     }
     httpsOnly: true
   }
-  dependsOn: [mcpApiKey]
 }
 
 resource keyVaultAccessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2026-02-01' = {
