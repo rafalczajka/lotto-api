@@ -1,17 +1,22 @@
 # Lotto API
 
+A **REST API** and **MCP server** providing draw results for Polish **Lotto** and **Lotto Plus** games.
+The API supports JSON and CSV formats, includes automated updates for new draws,
+and exposes its data to AI clients through the Model Context Protocol.
+
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-> A **REST API** providing draw results for Polish **Lotto** and **Lotto Plus** games.
-> The API supports JSON and CSV formats and includes automated updates for new draws.
+**Related project:** [Lotto Numbers Generator](https://github.com/rafalczajka/lotto-numbers-generator) -
+a CLI for generating Lotto numbers using different strategies and backtesting them against historical draws.
 
 ## Features
 
-- **Historical Data Endpoints**: Fetch draw results via `/api/draw-results`, `/api/draw-results/{date}`, or `/api/draw-results/latest`.
-- **Sync Status**: Check if storage is up to date via `/api/sync`.
-- **Multiple Formats**: Use `Accept: application/json` for JSON and `Accept: application/octet-stream` for CSV in `/api/draw-results`.
-- **Auto-Update**: New results are added automatically 45 minutes after each draw (Tue/Thu/Sat at 22:45 CET/CEST).
-- **Initialization Tools**: Python scripts to populate the database with historical data.
+- **Historical Data Endpoints:** Fetch draw results via `/api/draw-results`, `/api/draw-results/{date}`, or `/api/draw-results/latest`.
+- **Sync Status:** Check if storage is up to date via `/api/sync`.
+- **MCP Server:** Access Lotto draw results and synchronization status from MCP-compatible AI clients.
+- **Multiple Formats:** Use `Accept: application/json` for JSON and `Accept: application/octet-stream` for CSV in `/api/draw-results`.
+- **Auto-Update:** New results are added automatically 45 minutes after each draw (Tue/Thu/Sat at 22:45 CET/CEST).
+- **Initialization Tools:** Python scripts to populate the database with historical data.
 
 ## API Endpoints
 
