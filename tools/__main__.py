@@ -80,7 +80,12 @@ def fetch_draw_results(date: str) -> tuple[int, dict]:
     return status_code, response.json()
 
 
-def save_to_csv(data: list[list[str]], filename: Path) -> None:
+def fetch_data(filename: Path, start_date: str) -> None:
+    date = datetime.date.fromisoformat(start_date)
+    end_date = datetime.datetime.now(tz=TIMEZONE).date()
+
+    retries = 0
+
     with filename.open('w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
 
@@ -90,64 +95,56 @@ def save_to_csv(data: list[list[str]], filename: Path) -> None:
             'PlusNumbers',
         ])
 
-        writer.writerows(data)
+        file.flush()
 
+        while date <= end_date:
+            date_str = date.isoformat()
 
-def fetch_data(filename: Path, start_date: str) -> None:
-    date = datetime.date.fromisoformat(start_date)
-    end_date = datetime.datetime.now(tz=TIMEZONE).date()
+            status_code, data = fetch_draw_results(date_str)
 
-    results = []
-    retries = 0
+            if data and data.get('items'):
+                game_results = {
+                    item['gameType']: item['results'][0]['resultsJson']
+                    for item in data['items']
+                }
 
-    while date <= end_date:
-        date_str = date.isoformat()
+                numbers = game_results.get('Lotto', [])
+                plus_numbers = game_results.get('LottoPlus', [])
 
-        status_code, data = fetch_draw_results(date_str)
+                writer.writerow([
+                    date_str,
+                    ','.join(map(str, numbers)),
+                    ','.join(map(str, plus_numbers)),
+                ])
 
-        if data and data.get('items'):
-            game_results = {
-                item['gameType']: item['results'][0]['resultsJson']
-                for item in data['items']
-            }
+                file.flush()
 
-            numbers = game_results.get('Lotto', [])
-            plus_numbers = game_results.get('LottoPlus', [])
+                print(f'Numbers: {date_str} -> {numbers}, (plus: {plus_numbers})')
 
-            results.append([
-                date_str,
-                ','.join(map(str, numbers)),
-                ','.join(map(str, plus_numbers)),
-            ])
+            elif status_code == 500:
+                if retries >= MAX_HTTP_500_RETRIES:
+                    raise RuntimeError(
+                        f'Request failed with status code {status_code} for {date_str} '
+                        f'after {MAX_HTTP_500_RETRIES} retries.'
+                    )
 
-            print(f'Numbers: {date_str} -> {numbers}, (plus: {plus_numbers})')
+                retries += 1
+                delay = REQUEST_DELAY_SEC * 10
 
-        elif status_code == 500:
-            if retries >= MAX_HTTP_500_RETRIES:
-                raise RuntimeError(
-                    f'Request failed with status code {status_code} for {date_str} '
-                    f'after {MAX_HTTP_500_RETRIES} retries.'
+                print(
+                    f'Request failed (response code: {status_code}). '
+                    f'Retrying ({retries}/{MAX_HTTP_500_RETRIES}) after {delay} seconds...'
                 )
 
-            retries += 1
-            delay = REQUEST_DELAY_SEC * 10
+                time.sleep(delay)
+                continue
 
-            print(
-                f'Request failed (response code: {status_code}). '
-                f'Retrying ({retries}/{MAX_HTTP_500_RETRIES}) after {delay} seconds...'
-            )
+            else:
+                print(f'No data for {date_str}, skipping...')
 
-            time.sleep(delay)
-            continue
-
-        else:
-            print(f'No data for {date_str}, skipping...')
-
-        date += datetime.timedelta(days=1)
-        retries = 0
-        time.sleep(REQUEST_DELAY_SEC)
-
-    save_to_csv(results, filename)
+            date += datetime.timedelta(days=1)
+            retries = 0
+            time.sleep(REQUEST_DELAY_SEC)
 
     print(f'Data saved to {filename}')
 
@@ -247,11 +244,19 @@ def create_parser() -> ArgumentParser:
 
 
 def run_fetch(args) -> None:
-    fetch_data(args.file, args.start_date)
+    try:
+        fetch_data(args.file, args.start_date)
+    except KeyboardInterrupt:
+        print('\nFetch interrupted. Partial data has been saved.')
+        raise SystemExit(130)
 
 
 def run_upload(args) -> None:
-    upload_data(args.file, args.batch_size)
+    try:
+        upload_data(args.file, args.batch_size)
+    except KeyboardInterrupt:
+        print('\nUpload interrupted. Previously uploaded batches have been saved.')
+        raise SystemExit(130)
 
 
 def main() -> None:
