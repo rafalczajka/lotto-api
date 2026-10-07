@@ -1,4 +1,4 @@
 azure-data-tables==12.7.0
-python-dotenv==1.2.3
+python-dotenv==1.2.4
 requests==2.34.2
-tzdata==2026.4
+tzdata==2026.5
