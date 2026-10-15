@@ -233,6 +233,10 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
           name: 'ApiKey'
           value: listKeys('${functionApp.id}/host/default', functionApp.apiVersion).functionKeys.default
         }
+        {
+          name: 'AzureFunctionsJobHost__extensions__mcp__system__webhookAuthorizationLevel'
+          value: 'Anonymous' // tmp
+        }
       ]
     }
     httpsOnly: true
