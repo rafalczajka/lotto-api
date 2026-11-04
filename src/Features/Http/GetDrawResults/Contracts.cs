@@ -1,3 +1,4 @@
 ﻿namespace Lotto.Features.Http.GetDrawResults;
 
-internal sealed record DrawResultsCsvRecord(string DrawDate, string LottoNumbers, string? PlusNumbers);
+[CsvHelper.CsvRecord]
+internal sealed partial record DrawResultsCsvRecord(string DrawDate, string LottoNumbers, string? PlusNumbers);

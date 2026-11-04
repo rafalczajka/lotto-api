@@ -49,8 +49,9 @@ internal sealed class ResponseHandler(ILogger<ResponseHandler> logger)
         logger.LogInformation("Successfully retrieved {ResultCount} results. Creating a CSV file...", records.Count);
 
         await using var writer = new StringWriter();
-        await using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+        await using var csv = CsvWriter.Create(writer);
         await csv.WriteRecordsAsync(records, cancellationToken);
+        await csv.FlushAsync(cancellationToken);
 
         return new FileContentResult(Encoding.UTF8.GetBytes(writer.ToString()), "application/octet-stream")
         {
