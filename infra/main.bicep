@@ -62,7 +62,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-09-01' = {
   name: 'st${resourceTokenWithoutDashes}'
   location: location
   kind: 'StorageV2'
@@ -77,7 +77,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2026-04-01' = {
   }
 }
 
-resource tableServices 'Microsoft.Storage/storageAccounts/tableServices@2026-04-01' = {
+resource tableServices 'Microsoft.Storage/storageAccounts/tableServices@2026-09-01' = {
   name: 'default'
   parent: storageAccount
 
@@ -86,17 +86,17 @@ resource tableServices 'Microsoft.Storage/storageAccounts/tableServices@2026-04-
   }
 }
 
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2026-04-01' = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2026-09-01' = {
   name: 'default'
   parent: storageAccount
 }
 
-resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2026-04-01' = {
+resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2026-09-01' = {
   name: 'default'
   parent: storageAccount
 }
 
-resource queueServices 'Microsoft.Storage/storageAccounts/queueServices@2026-04-01' = {
+resource queueServices 'Microsoft.Storage/storageAccounts/queueServices@2026-09-01' = {
   name: 'default'
   parent: storageAccount
 }
@@ -111,7 +111,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   }
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2026-02-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-05-15' = {
   name: 'kv-${resourceToken}'
   location: location
   properties: {
@@ -243,7 +243,7 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
   }
 }
 
-resource keyVaultAccessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2026-02-01' = {
+resource keyVaultAccessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2026-05-15' = {
   name: 'add'
   parent: keyVault
   properties: {
