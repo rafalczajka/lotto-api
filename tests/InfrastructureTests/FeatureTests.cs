@@ -14,7 +14,7 @@ public sealed class FeatureTests
 
     private static IEnumerable<Type> GetFeatureTypes()
     {
-        var assembly = typeof(IAssemblyMarker).Assembly;
+        var assembly = typeof(AssemblyMarker).Assembly;
         return assembly.DefinedTypes.Where(t =>
             t.Namespace is not null && t.Namespace.StartsWith($"{FeaturesNamespace}."));
     }
