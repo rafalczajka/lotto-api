@@ -33,7 +33,7 @@ internal sealed class ApiClient(HttpClient httpClient)
         return GetRequiredAsync<DrawResultsDto>("api/draw-results/latest", cancellationToken);
     }
 
-    public async Task<SyncDto> GetSyncAsync(CancellationToken cancellationToken = default)
+    public async Task<SyncDto> GetSyncStatusAsync(CancellationToken cancellationToken = default)
     {
         return await GetRequiredAsync<SyncDto>("api/sync", cancellationToken);
     }

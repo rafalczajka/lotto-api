@@ -18,6 +18,6 @@ internal sealed class GetSyncStatus(ApiClient apiClient)
         ToolInvocationContext _,
         CancellationToken cancellationToken)
     {
-        return apiClient.GetSyncAsync(cancellationToken);
+        return apiClient.GetSyncStatusAsync(cancellationToken);
     }
 }

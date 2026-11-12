@@ -1,4 +1,4 @@
-﻿namespace Lotto.Features.Http.GetSync;
+﻿namespace Lotto.Features.Http.GetSyncStatus;
 
 internal sealed record SyncDto(
     string? LatestSyncDate,

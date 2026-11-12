@@ -1,7 +1,7 @@
 using System.Globalization;
 using Lotto.Draws;
 
-namespace Lotto.Features.Http.GetSync;
+namespace Lotto.Features.Http.GetSyncStatus;
 
 internal sealed class FunctionHandler(
     IDrawResultsRepository repository,
@@ -10,7 +10,7 @@ internal sealed class FunctionHandler(
 {
     public async Task<SyncDto> HandleAsync(CancellationToken cancellationToken)
     {
-        logger.LogInformation("Handling GetSync.");
+        logger.LogInformation("Handling GetSyncStatus.");
 
         var storageResult = await repository.GetLatestAsync(cancellationToken);
         var storageDate = storageResult?.DrawDate;

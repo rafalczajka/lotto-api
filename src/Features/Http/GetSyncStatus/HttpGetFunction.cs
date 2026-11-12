@@ -3,13 +3,13 @@ using System.Net.Http;
 using Lotto.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Lotto.Features.Http.GetSync;
+namespace Lotto.Features.Http.GetSyncStatus;
 
 internal sealed class HttpGetFunction(
     FunctionHandler handler,
     ILogger<HttpGetFunction> logger)
 {
-    private const string FunctionName = "GetSync";
+    private const string FunctionName = "GetSyncStatus";
 
     [Function(FunctionName)]
     [Operation(FunctionName, "Sync")]
