@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - 'mcp/**'
       - 'Directory.*.props'
+      - 'global.json'
       - '.github/workflows/**'
 
   workflow_dispatch:

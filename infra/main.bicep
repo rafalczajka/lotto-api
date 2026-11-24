@@ -157,6 +157,8 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
+      netFrameworkVersion: 'v11.0'
+      use32BitWorkerProcess: false
       cors: {
         allowedOrigins: [
           'https://portal.azure.com'
@@ -164,6 +166,10 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
         supportCredentials: true
       }
       appSettings: concat([
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: 'dotnet-isolated'
@@ -212,7 +218,13 @@ resource functionAppMcp 'Microsoft.Web/sites@2025-03-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
+      netFrameworkVersion: 'v11.0'
+      use32BitWorkerProcess: false
       appSettings: [
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: 'dotnet-isolated'

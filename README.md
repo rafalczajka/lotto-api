@@ -67,7 +67,7 @@ Returns synchronization status between storage and the external Lotto API.
 ## Getting Started
 
 ### Prerequisites
-- .NET 10.0.100 or later
+- .NET 11.0.100 or later
 - Azure account with active subscription
 - Azure CLI
 - Python (for initialization scripts, version 3.12+ recommended)
